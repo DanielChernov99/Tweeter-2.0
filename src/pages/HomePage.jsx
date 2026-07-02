@@ -1,4 +1,4 @@
-import {useState,useEffect} from 'react'
+import {useState,useEffect,useMemo} from 'react'
 import {Container,Stack} from '@mantine/core';
 import TweetsContainer from '../components/TweetsContainer';
 import NewTweetBox from '../components/NewTweetBox';
@@ -30,21 +30,25 @@ export default function HomePage(){
     
     const [tweets,setTweets] = useState(mockTweets)
 
+    const sortedTweets = useMemo(() => {
+        return [...tweets].sort((a, b) => new Date(b.date) - new Date(a.date));
+    }, [tweets]);
+
     const addTweet = (tweetText) =>{
         const newTweet = {
             id:crypto.randomUUID(),
             userName:mockUserName,
             text:tweetText,
-            date: new Date().toLocaleString()
+            date: new Date().toISOString()
         }
-        setTweets(prev => [...prev,newTweet].sort((a,b) => new Date(b.date) - new Date(a.date)))
+        setTweets(prev => [...prev, newTweet]);
     }
 
     return (
         <Container size="sm" py="xl">
             <Stack gap="md">
                 <NewTweetBox addTweet={addTweet}/>
-                <TweetsContainer tweets={tweets}/>
+                <TweetsContainer tweets={sortedTweets}/>
             </Stack>
         </Container>
     )
