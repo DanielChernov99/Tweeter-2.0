@@ -28,18 +28,30 @@ const mockTweets = [
 
 export default function HomePage(){
     
-    const [tweets,setTweets] = useState(() =>{
-        const savedTweets = localStorage.getItem("Tweets");
-        if (savedTweets) {
-        return JSON.parse(savedTweets);
+    const [tweets,setTweets] = useState([])
+    const [isLoading,setIsLoading] = useState(false)
+    
+
+    useEffect(() => {
+        async function getData() {
+            try {
+                const response = await fetch('https://lrazzxpwhdtmxcetgtng.supabase.co/rest/v1/Tweets?apikey=sb_publishable_PYoOQaHg4j7ps7Vo5Br41Q_QfmiyPSB')
+                if(!response.ok){
+                    alert("Something wen't wrong")
+                    return
+                }
+                const data = await response.json()                
+                if(!Array.isArray(data)){                  
+                    return
+                }
+                setTweets(data)
+                
+            } catch (error) {
+                alert("Something wen't wrong when fetching data")
+            }                    
         }
-        return mockTweets
-    })
-
-
-    useEffect(() =>{
-        localStorage.setItem("Tweets",JSON.stringify(tweets))
-    },[tweets])
+        getData()     
+    },[])
 
     const sortedTweets = useMemo(() => {
         return [...tweets].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -49,7 +61,7 @@ export default function HomePage(){
         const newTweet = {
             id:crypto.randomUUID(),
             userName:mockUserName,
-            text:tweetText,
+            content:tweetText,
             date: new Date().toISOString()
         }
         setTweets(prev => [...prev, newTweet]);
