@@ -4,17 +4,20 @@ import { useState } from 'react';
 const MAX_TWEET_LENGTH = 140;
 // error="The tweet can't contain more then 140 chars"
 
-export default function NewTweetBox({addTweet}) {
+export default function NewTweetBox({addTweet,isAddingTweet }) {
     const [input,setInput] = useState("")
     const isTooLong = input.length > MAX_TWEET_LENGTH;
     const isEmpty = input.trim().length === 0;
 
-    const handleTweet = () => {
-        if (isTooLong || isEmpty) return;
+    const handleTweet = async () => {
+        if (isTooLong || isEmpty || isAddingTweet) return;
 
-        addTweet(input.trim());
-        setInput("");
-    };
+        const success = await addTweet(input.trim());
+
+        if (success) {
+            setInput("");
+        }
+        };
 
   return (
     <Paper withBorder radius="md" p="sm">
@@ -35,9 +38,13 @@ export default function NewTweetBox({addTweet}) {
             The tweet can't contain more than 140 chars
             </Text>
         )}       
-        <Button onClick={handleTweet} disabled={isTooLong || isEmpty}>
-          Tweet
-        </Button>
+        <Button
+            onClick={handleTweet}
+            disabled={isTooLong || isEmpty || isAddingTweet}
+            loading={isAddingTweet}
+            >
+            Tweet
+            </Button>
       </Group>
 
     </Paper>

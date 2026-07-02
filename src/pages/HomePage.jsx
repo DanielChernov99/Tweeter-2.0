@@ -1,5 +1,5 @@
 import {useState,useEffect,useMemo} from 'react'
-import {Container,Stack,Notification} from '@mantine/core';
+import {Container,Stack,Notification,Loader} from '@mantine/core';
 import TweetsContainer from '../components/TweetsContainer';
 import NewTweetBox from '../components/NewTweetBox';
 import FetchService from '../services/fetchService';
@@ -31,7 +31,8 @@ const mockTweets = [
 export default function HomePage({userName}){
     
     const [tweets,setTweets] = useState([])
-    const [isLoading,setIsLoading] = useState(false)
+    const [isFetchingTweets, setIsFetchingTweets] = useState(false);
+    const [isAddingTweet, setIsAddingTweet] = useState(false);
     const [notification, setNotification] = useState(null);
     
     const fs = FetchService()
@@ -42,30 +43,32 @@ export default function HomePage({userName}){
 
     
     async function fetchTweets() {
-        setIsLoading(true);
+        setIsFetchingTweets(true);
 
         const result = await fs.getTweets();
 
         if (!result.success) {
             setNotification({
-                type: "error",
-                title: "Bummer!",
-                message: result.error
+            type: "error",
+            title: "oh no!",
+            message: result.error
             });
 
-            setIsLoading(false);
+            setIsFetchingTweets(false);
             return;
         }
 
         setTweets(result.data);
-        setIsLoading(false);
-    }
+        setIsFetchingTweets(false);
+        }
 
     const sortedTweets = useMemo(() => {
         return [...tweets].sort((a, b) => new Date(b.date) - new Date(a.date));
     }, [tweets]);
 
     const addTweet = async (tweetText) => {
+        setIsAddingTweet(true);
+
         setNotification({
             type: "loading",
             title: "Loading the new HOT Tweets",
@@ -76,12 +79,13 @@ export default function HomePage({userName}){
 
         if (!result.success) {
             setNotification({
-                type: "error",
-                title: "Oh no!",
-                message: result.error
+            type: "error",
+            title: "Oh no!",
+            message: result.error
             });
 
-            return;
+            setIsAddingTweet(false);
+            return false;
         }
 
         await fetchTweets();
@@ -91,7 +95,10 @@ export default function HomePage({userName}){
             title: "All good!",
             message: "Tweet was created successfully"
         });
-    };
+
+        setIsAddingTweet(false);
+        return true;
+        };
 
     function renderNotification() {
         if (!notification) {
@@ -146,11 +153,17 @@ export default function HomePage({userName}){
     return (
         <Container size="sm" py="xl">
             <Stack gap="md">
-                <NewTweetBox addTweet={addTweet}/>
-                {renderNotification()}
-                <TweetsContainer tweets={sortedTweets}/>
+            <NewTweetBox addTweet={addTweet} isAddingTweet={isAddingTweet} />
+
+            {renderNotification()}
+
+            {isFetchingTweets ? (
+                <Loader />
+            ) : (
+                <TweetsContainer tweets={sortedTweets} />
+            )}
             </Stack>
         </Container>
-    )
+        )
 
 }
