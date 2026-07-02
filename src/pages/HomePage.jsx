@@ -1,8 +1,9 @@
 import {useState,useEffect,useMemo} from 'react'
-import {Container,Stack} from '@mantine/core';
+import {Container,Stack,Notification} from '@mantine/core';
 import TweetsContainer from '../components/TweetsContainer';
 import NewTweetBox from '../components/NewTweetBox';
 import FetchService from '../services/fetchService';
+import { CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react';
 
 const mockUserName = "Daniel Chernov";
 const mockTweets = [
@@ -31,7 +32,7 @@ export default function HomePage(){
     
     const [tweets,setTweets] = useState([])
     const [isLoading,setIsLoading] = useState(false)
-    const [error,setError] = useState(false)
+    const [notification, setNotification] = useState(null);
     
     const fs = FetchService()
 
@@ -41,38 +42,103 @@ export default function HomePage(){
 
     
     async function fetchTweets() {
-        try {
-            setIsLoading(true);
-            setError(false);
+        setIsLoading(true);
 
-            const data = await fs.getTweets()
-            setTweets(data || [])
+        const result = await fs.getTweets();
 
-        } catch (error) {
-            setError(true);
+        if (!result.success) {
+            setNotification({
+                type: "error",
+                title: "Bummer!",
+                message: result.error
+            });
+
+            setIsLoading(false);
+            return;
         }
-        finally{
-            setIsLoading(false)
-        }
-        
+
+        setTweets(result.data);
+        setIsLoading(false);
     }
 
     const sortedTweets = useMemo(() => {
         return [...tweets].sort((a, b) => new Date(b.date) - new Date(a.date));
     }, [tweets]);
 
-    const addTweet = async (tweetText) =>{
-        const newTweet = {
-            // id:crypto.randomUUID(),
-            userName:mockUserName,
-            content:tweetText,
-            // date: new Date().toISOString()
-        }        
-        const isSuccessful  = await fs.postTweet(newTweet.content,newTweet.userName) 
-        if(isSuccessful){
-            await fetchTweets()
+    const addTweet = async (tweetText) => {
+        setNotification({
+            type: "loading",
+            title: "Loading the new HOT Tweets",
+            message: ""
+        });
+
+        const result = await fs.postTweet(tweetText, mockUserName);
+
+        if (!result.success) {
+            setNotification({
+                type: "error",
+                title: "Oh no!",
+                message: result.error
+            });
+
+            return;
         }
 
+        await fetchTweets();
+
+        setNotification({
+            type: "success",
+            title: "All good!",
+            message: "Tweet was created successfully"
+        });
+    };
+
+    function renderNotification() {
+        if (!notification) {
+            return null;
+        }
+
+        if (notification.type === "loading") {
+            return (
+                <Notification
+                    loading
+                    withCloseButton={false}
+                    color="teal"
+                    radius="lg"
+                    title={notification.title}
+                >
+                    {notification.message}
+                </Notification>
+            );
+        }
+
+        if (notification.type === "success") {
+            return (
+                <Notification
+                    icon={<CheckCircleIcon size={24} weight="fill" />}
+                    color="teal"
+                    title={notification.title}
+                    onClose={() => setNotification(null)}
+                >
+                    {notification.message}
+                </Notification>
+            );
+        }
+
+        if (notification.type === "error") {
+            return (
+                <Notification
+                    icon={<XCircleIcon size={24} weight="fill" />}
+                    color="red"
+                    title={notification.title}
+                    onClose={() => setNotification(null)}
+                >
+                    {notification.message}
+                </Notification>
+            );
+        }
+
+        return null;
     }
 
     
@@ -81,6 +147,7 @@ export default function HomePage(){
         <Container size="sm" py="xl">
             <Stack gap="md">
                 <NewTweetBox addTweet={addTweet}/>
+                {renderNotification()}
                 <TweetsContainer tweets={sortedTweets}/>
             </Stack>
         </Container>
