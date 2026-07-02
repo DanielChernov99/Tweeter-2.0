@@ -2,8 +2,9 @@ import {useState,useEffect,useMemo} from 'react'
 import {Container,Stack} from '@mantine/core';
 import TweetsContainer from '../components/TweetsContainer';
 import NewTweetBox from '../components/NewTweetBox';
+import FetchService from '../services/fetchService';
 
-const mockUserName = "yonatan";
+const mockUserName = "Daniel Chernov";
 const mockTweets = [
     {
         id: "1",
@@ -30,42 +31,51 @@ export default function HomePage(){
     
     const [tweets,setTweets] = useState([])
     const [isLoading,setIsLoading] = useState(false)
+    const [error,setError] = useState(false)
     
+    const fs = FetchService()
 
     useEffect(() => {
-        async function getData() {
-            try {
-                const response = await fetch('https://lrazzxpwhdtmxcetgtng.supabase.co/rest/v1/Tweets?apikey=sb_publishable_PYoOQaHg4j7ps7Vo5Br41Q_QfmiyPSB')
-                if(!response.ok){
-                    alert("Something wen't wrong")
-                    return
-                }
-                const data = await response.json()                
-                if(!Array.isArray(data)){                  
-                    return
-                }
-                setTweets(data)
-                
-            } catch (error) {
-                alert("Something wen't wrong when fetching data")
-            }                    
-        }
-        getData()     
+        fetchTweets()          
     },[])
+
+    
+    async function fetchTweets() {
+        try {
+            setIsLoading(true);
+            setError(false);
+
+            const data = await fs.getTweets()
+            setTweets(data || [])
+
+        } catch (error) {
+            setError(true);
+        }
+        finally{
+            setIsLoading(false)
+        }
+        
+    }
 
     const sortedTweets = useMemo(() => {
         return [...tweets].sort((a, b) => new Date(b.date) - new Date(a.date));
     }, [tweets]);
 
-    const addTweet = (tweetText) =>{
+    const addTweet = async (tweetText) =>{
         const newTweet = {
-            id:crypto.randomUUID(),
+            // id:crypto.randomUUID(),
             userName:mockUserName,
             content:tweetText,
-            date: new Date().toISOString()
+            // date: new Date().toISOString()
+        }        
+        const isSuccessful  = await fs.postTweet(newTweet.content,newTweet.userName) 
+        if(isSuccessful){
+            await fetchTweets()
         }
-        setTweets(prev => [...prev, newTweet]);
+
     }
+
+    
 
     return (
         <Container size="sm" py="xl">
