@@ -30,17 +30,16 @@ export default function NewTweetBox({addTweet}) {
         <Text size="xs" c={isTooLong ? "red" : "dimmed"}>
           {input.length}/{MAX_TWEET_LENGTH}
         </Text>
-
+        {isTooLong && (
+            <Text size="xs" c="red" mt="xs">
+            The tweet can't contain more than 140 chars
+            </Text>
+        )}       
         <Button onClick={handleTweet} disabled={isTooLong || isEmpty}>
           Tweet
         </Button>
       </Group>
 
-      {isTooLong && (
-        <Text size="xs" c="red" mt="xs">
-          The tweet can't contain more than 140 chars
-        </Text>
-      )}
     </Paper>
     
   );
