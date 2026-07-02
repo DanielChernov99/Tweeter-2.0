@@ -23,11 +23,11 @@ export default function NavBar() {
 
           <Button
             component={NavLink}
-            to="/user"
+            to="/UserPage"
             variant="subtle"
             className={classes.link}
           >
-            User
+            Profile
           </Button>
         </Group>
       </Group>

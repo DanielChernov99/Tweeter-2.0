@@ -28,7 +28,7 @@ const mockTweets = [
     },
 ];
 
-export default function HomePage(){
+export default function HomePage({userName}){
     
     const [tweets,setTweets] = useState([])
     const [isLoading,setIsLoading] = useState(false)
@@ -72,7 +72,7 @@ export default function HomePage(){
             message: ""
         });
 
-        const result = await fs.postTweet(tweetText, mockUserName);
+        const result = await fs.postTweet(tweetText, userName);
 
         if (!result.success) {
             setNotification({

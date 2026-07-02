@@ -1,22 +1,49 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import HomePage from './pages/HomePage'
 import UserPage from './pages/UserPage'
-import NavBar from './components/NavBar'
+import NavBar from './components/Navbar'
 import { BrowserRouter, Route, Routes } from "react-router";
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [userName,setUser] = useState("Guest")
+
+
+  const [userName, setUserName] = useState(() => {
+    return localStorage.getItem("userName") || "Guest";
+  });
+
+  function checkValidName(name) {
+    if (!name || name.trim() === "") {
+      return false;
+    }
+
+    if (/\d/.test(name)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  const changeName = (newName) => {
+    if (!checkValidName(newName)) {
+      return false;
+    }
+
+    const cleanName = newName.trim();
+
+    setUserName(cleanName);
+    localStorage.setItem("userName", cleanName);
+
+    return true;
+  }
+
+
 
   return (
     <BrowserRouter>
       <NavBar />
       <Routes>
-        <Route path="/" element={<HomePage />}/>
-        <Route path="/user" element={<UserPage />}/>
+        <Route path="/" element={<HomePage userName={userName} />}/>
+        <Route path="/UserPage" element={<UserPage userName={userName} changeName={changeName}/>}/>
       </Routes>
         
     </BrowserRouter>
