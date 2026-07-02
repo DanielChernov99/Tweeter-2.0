@@ -28,7 +28,18 @@ const mockTweets = [
 
 export default function HomePage(){
     
-    const [tweets,setTweets] = useState(mockTweets)
+    const [tweets,setTweets] = useState(() =>{
+        const savedTweets = localStorage.getItem("Tweets");
+        if (savedTweets) {
+        return JSON.parse(savedTweets);
+        }
+        return mockTweets
+    })
+
+
+    useEffect(() =>{
+        localStorage.setItem("Tweets",JSON.stringify(tweets))
+    },[tweets])
 
     const sortedTweets = useMemo(() => {
         return [...tweets].sort((a, b) => new Date(b.date) - new Date(a.date));
