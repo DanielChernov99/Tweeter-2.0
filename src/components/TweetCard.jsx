@@ -13,7 +13,7 @@ export default function TweetCard({tweet}){
             {new Date(tweet.date).toLocaleString()}
             </Text>
         </Group>
-        <Text>{tweet.content}</Text>
+        <Text>{tweet.text}</Text>
         </Card>
     )
 }

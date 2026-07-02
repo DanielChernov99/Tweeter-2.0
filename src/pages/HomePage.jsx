@@ -1,27 +1,28 @@
 import {useState,useEffect} from 'react'
 import {Container,Stack} from '@mantine/core';
 import TweetsContainer from '../components/TweetsContainer';
+import NewTweetBox from '../components/NewTweetBox';
 
-
+const mockUserName = "yonatan";
 const mockTweets = [
     {
         id: "1",
         userName: "yonatan",
         date: "2019-12-15T14:40:58.340Z",
-        content:
+        text:
         "On the technical side, Microsoft says the Xbox Series X can handle 4K visuals at 60 frames per second, and potentially up to 120FPS.",
     },
     {
         id: "2",
         userName: "yonatan",
         date: "2019-12-15T14:40:11.083Z",
-        content: "hello there",
+        text: "hello there",
     },
     {
         id: "3",
         userName: "yonatan",
         date: "2019-12-15T14:40:58.340Z",
-        content: "another tweet text",
+        text: "another tweet text",
     },
 ];
 
@@ -29,10 +30,20 @@ export default function HomePage(){
     
     const [tweets,setTweets] = useState(mockTweets)
 
+    const addTweet = (tweetText) =>{
+        const newTweet = {
+            id:crypto.randomUUID(),
+            userName:mockUserName,
+            text:tweetText,
+            date: new Date().toLocaleString()
+        }
+        setTweets(prev => [...prev,newTweet].sort((a,b) => new Date(b.date) - new Date(a.date)))
+    }
 
     return (
         <Container size="sm" py="xl">
             <Stack gap="md">
+                <NewTweetBox addTweet={addTweet}/>
                 <TweetsContainer tweets={tweets}/>
             </Stack>
         </Container>
