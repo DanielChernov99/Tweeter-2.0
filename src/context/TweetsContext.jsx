@@ -70,12 +70,13 @@ export function TweetsProvider({ children }) {
       return false;
     }
 
-    const newTweet = {
-      id: crypto.randomUUID(),
-      content: tweetText,
-      userName,
-      date: new Date().toISOString(),
-    };
+    const newTweet =
+        result.data || {
+            id: crypto.randomUUID(),
+            content: tweetText,
+            userName,
+            date: new Date().toISOString(),
+        };
 
     setTweets((prevTweets) => [newTweet, ...prevTweets]);
 
