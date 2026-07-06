@@ -16,7 +16,7 @@ export function UserProvider({children}){
         if (/\d/.test(name)) {
             return false;
         }
-        return false
+        return true
     }
 
     function changeName(name){

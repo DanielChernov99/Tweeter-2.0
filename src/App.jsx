@@ -1,53 +1,25 @@
-import { useState } from 'react'
-import HomePage from './pages/HomePage'
-import UserPage from './pages/UserPage'
-import NavBar from './components/Navbar'
+import HomePage from "./pages/HomePage";
+import UserPage from "./pages/UserPage";
+import NavBar from "./components/Navbar";
 import { BrowserRouter, Route, Routes } from "react-router";
+import { UserProvider } from "./context/UserContext";
+import { TweetsProvider } from "./context/TweetsContext";
 
 function App() {
-
-
-  const [userName, setUserName] = useState(() => {
-    return localStorage.getItem("userName") || "Guest";
-  });
-
-  function checkValidName(name) {
-    if (!name || name.trim() === "") {
-      return false;
-    }
-
-    if (/\d/.test(name)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  const changeName = (newName) => {
-    if (!checkValidName(newName)) {
-      return false;
-    }
-
-    const cleanName = newName.trim();
-
-    setUserName(cleanName);
-    localStorage.setItem("userName", cleanName);
-
-    return true;
-  }
-
-
-
   return (
     <BrowserRouter>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<HomePage userName={userName} />}/>
-        <Route path="/UserPage" element={<UserPage userName={userName} changeName={changeName}/>}/>
-      </Routes>
-        
+      <UserProvider>
+        <TweetsProvider>
+          <NavBar />
+
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/UserPage" element={<UserPage />} />
+          </Routes>
+        </TweetsProvider>
+      </UserProvider>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

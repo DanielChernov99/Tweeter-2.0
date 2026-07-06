@@ -1,9 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import FetchService from "../services/fetchService";
+import { useUser } from "./UserContext";
 
 const TweetsContext = createContext();
 
-export function TweetsProvider({ children, userName }) {
+export function TweetsProvider({ children }) {
+  const { userName } = useUser();
+
   const [tweets, setTweets] = useState([]);
   const [isFetchingTweets, setIsFetchingTweets] = useState(false);
   const [isAddingTweet, setIsAddingTweet] = useState(false);

@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Container, Stack, Title, TextInput, Button, Group, Text } from "@mantine/core";
+import { useUser } from "../context/UserContext";
 
-export default function UserPage({ userName, changeName }) {
+export default function UserPage() {
+  const { userName, changeName } = useUser();
+
   const [input, setInput] = useState(userName);
   const [error, setError] = useState("");
 
@@ -21,9 +24,7 @@ export default function UserPage({ userName, changeName }) {
       <Stack gap="md">
         <Title>Profile</Title>
 
-        <Text>
-          Current username: {userName}
-        </Text>
+        <Text>Current username: {userName}</Text>
 
         <TextInput
           label="User Name"
@@ -33,9 +34,7 @@ export default function UserPage({ userName, changeName }) {
         />
 
         <Group justify="flex-end">
-          <Button onClick={handleSave}>
-            Save
-          </Button>
+          <Button onClick={handleSave}>Save</Button>
         </Group>
       </Stack>
     </Container>
